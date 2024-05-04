@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
+    <PlatformTarget>anycpu</PlatformTarget>
     <InvariantGlobalization>true</InvariantGlobalization>
     <Title>QuickDiff</Title>
     <Version>1.0.0</Version>
@@ -13,6 +14,7 @@
     <PackageProjectUrl>https://github.com/JustinRidings/QuickDiff</PackageProjectUrl>
     <PackageTags>Diff;CLI;Compare;Comparison</PackageTags>
     <PackAsTool>True</PackAsTool>
+    <StartupObject>QuickDiff.QuickDiff</StartupObject>
   </PropertyGroup>
 
 </Project>
