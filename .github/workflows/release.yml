@@ -11,11 +11,8 @@ jobs:
       matrix:
         include:
           - runtime: win-x64
-          - runtime: win-arm64
           - runtime: linux-x64
-          - runtime: linux-arm64
           - runtime: osx-x64
-          - runtime: osx-arm64
     timeout-minutes: 15
     steps:
 
@@ -28,7 +25,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: 🚧 Build
-      run: dotnet build -r ${{ matrix.runtime }} -c Release 
+      run: dotnet build -c Release 
 
     - name: 📦 Pack NuGet with Runtime
       run: dotnet pack -r ${{ matrix.runtime }} -c Release --output . 
