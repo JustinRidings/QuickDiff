@@ -6,10 +6,8 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishAot>true</PublishAot>
-    <InvariantGlobalization>true</InvariantGlobalization>
     <Title>QuickDiff</Title>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Description>A dotnet CLI tool for comparing files and directories.</Description>
     <PackageProjectUrl>https://github.com/JustinRidings/QuickDiff</PackageProjectUrl>
     <PackageTags>Diff;CLI;Compare;Comparison</PackageTags>
