@@ -28,7 +28,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: 🚧 Build
-      run: dotnet build -r ${{ matrix.runtime }} -c Release 
+      run: dotnet build -c Release 
 
     - name: 📦 Pack NuGet with Runtime
       run: dotnet pack -r ${{ matrix.runtime }} -c Release --output . 
