@@ -5,28 +5,21 @@ on:
     types: [published]
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - runtime: win-x64
-    timeout-minutes: 15
     steps:
+    - uses: actions/checkout@v2
 
-    - name: 🛎️ Checkout
-      uses: actions/checkout@v4
-
-    - name: 🛠️ Setup .NET Core
-      uses: actions/setup-dotnet@v4
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: '8.0.x'
 
-    - name: 🚧 Build
-      run: dotnet build -c Release 
+    - name: Build
+      run: dotnet build --configuration Release
 
-    - name: 📦 Pack NuGet with Runtime
-      run: dotnet pack -r ${{ matrix.runtime }} --no-build -c Release --output . 
+    - name: Pack NuGet Tool
+      run: dotnet pack -c Release /p:PackageType=DotnetTool --output nupkg
 
-    - name: 🌐 Push to NuGet
-      run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.nuget_api_key }} --source https://api.nuget.org/v3/index.json
+    - name: Publish NuGet Tool
+      run: dotnet nuget push "nupkg/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

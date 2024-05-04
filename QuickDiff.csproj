@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
@@ -12,6 +13,7 @@
     <Description>A dotnet CLI tool for comparing files and directories.</Description>
     <PackageProjectUrl>https://github.com/JustinRidings/QuickDiff</PackageProjectUrl>
     <PackageTags>Diff;CLI;Compare;Comparison</PackageTags>
+    <PackageType>DotnetTool</PackageType>
     <PackAsTool>True</PackAsTool>
     <StartupObject>QuickDiff.QuickDiff</StartupObject>
   </PropertyGroup>
