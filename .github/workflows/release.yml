@@ -27,11 +27,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: 🚧 Build
-      run: dotnet build -c Release -r ${{ matrix.runtime }}
-
     - name: 📦 Pack NuGet with Runtime
-      run: dotnet pack -c Release --no-build --output . -r ${{ matrix.runtime }}
+      run: dotnet pack -c Release --output . -r ${{ matrix.runtime }}
 
     - name: 🌐 Push to NuGet
       run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.nuget_api_key }} --source https://api.nuget.org/v3/index.json
