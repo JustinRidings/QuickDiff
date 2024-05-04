@@ -6,20 +6,20 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup .NET Core
+    - name: 🛠️ Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '8.0.x'
 
-    - name: Build
+    - name: 🚧 Build
       run: dotnet build --configuration Release
 
-    - name: Pack NuGet Tool
-      run: dotnet pack -c Release /p:PackageType=DotnetTool --output nupkg
+    - name: 📦 Pack NuGet Tool
+      run: dotnet pack -c Release /p:PackageType=DotnetTool --output .
 
-    - name: Publish NuGet Tool
-      run: dotnet nuget push "nupkg/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+    - name: 🌐 Publish NuGet Tool
+      run: dotnet nuget push "QuickDiff.*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
