@@ -26,9 +26,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
+
+    - name: 🚧 Build
+      run: dotnet build -r ${{ matrix.runtime }} -c Release 
+
     - name: 📦 Pack NuGet with Runtime
-      run: dotnet pack -c Release --output . --runtime ${{ matrix.runtime }}
+      run: dotnet pack -r ${{ matrix.runtime }} -c Release --output . 
 
     - name: 🌐 Push to NuGet
       run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.nuget_api_key }} --source https://api.nuget.org/v3/index.json
