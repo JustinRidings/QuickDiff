@@ -1,9 +1,8 @@
 ﻿using System.Reflection;
-using System.IO;
 
 namespace QuickDiff
 {
-    internal class QuickDiff
+    internal class Program
     {
         static int Main(string[] args)
         {
@@ -98,7 +97,7 @@ namespace QuickDiff
             return DiffType.None;
         }
 
-        public static List<Tuple<ConsoleColor,string>> GenerateInlineFileDiff(string original, string modified)
+        static List<Tuple<ConsoleColor,string>> GenerateInlineFileDiff(string original, string modified)
         {
             List<Tuple<ConsoleColor,string>> result = new List<Tuple<ConsoleColor, string>>();
             string[] originalLines = File.ReadAllLines(original);
@@ -131,7 +130,7 @@ namespace QuickDiff
             return result;
         }
 
-        public static List<Tuple<ConsoleColor, string>> GenerateDirectoryDiff(string baseDir, string compareDir)
+        static List<Tuple<ConsoleColor, string>> GenerateDirectoryDiff(string baseDir, string compareDir)
         {
             List<Tuple<ConsoleColor,string>> result = new List<Tuple<ConsoleColor, string>>();
 
@@ -237,7 +236,6 @@ namespace QuickDiff
             Directory,
             None
         }
-
     }
 }
 
