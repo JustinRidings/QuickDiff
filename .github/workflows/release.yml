@@ -11,18 +11,27 @@ jobs:
       matrix:
         include:
           - runtime: win-x64
-          - runtime: win-x86
+          - runtime: win-arm64
           - runtime: linux-x64
-          - runtime: linux-x86
+          - runtime: linux-arm64
+          - runtime: osx-x64
+          - runtime: osx-arm64
     timeout-minutes: 15
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v1
-    - name: Build with Runtime
-      run: dotnet build -c Release --runtime ${{ matrix.runtime }}
-    - name: Pack NuGet with Runtime
-      run: dotnet pack -c Release --no-build --output . --runtime ${{ matrix.runtime }}
-    - name: Push to NuGet
+
+    - name: 🛎️ Checkout
+      uses: actions/checkout@v4
+
+    - name: 🛠️ Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: 🚧 Build
+      run: dotnet build -c Release -r ${{ matrix.runtime }}
+
+    - name: 📦 Pack NuGet with Runtime
+      run: dotnet pack -c Release --no-build --output . -r ${{ matrix.runtime }}
+
+    - name: 🌐 Push to NuGet
       run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.nuget_api_key }} --source https://api.nuget.org/v3/index.json
