@@ -9,13 +9,11 @@
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <Title>QuickDiff</Title>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Description>A dotnet CLI tool for comparing files and directories.</Description>
     <PackageProjectUrl>https://github.com/JustinRidings/QuickDiff</PackageProjectUrl>
     <PackageTags>Diff;CLI;Compare;Comparison</PackageTags>
-    <PackageType>DotnetTool</PackageType>
     <PackAsTool>True</PackAsTool>
-    <StartupObject>QuickDiff.QuickDiff</StartupObject>
   </PropertyGroup>
 
 </Project>
