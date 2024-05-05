@@ -1,6 +1,8 @@
 # QuickDiff
 A dotnet CLI tool for comparing files and directories.
 
+<img src="https://github.com/JustinRidings/QuickDiff/blob/main/QuickDiffDemo.gif" width="40%" height="40%" />
+
 ### Prereqs
 
 You will need .NET 8 Runtime/SDK in order to code / build / use as a dotnet tool.
