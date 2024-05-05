@@ -24,6 +24,7 @@ namespace QuickDiff
                         Console.ForegroundColor = change.Item1;
                         Console.WriteLine(change.Item2);
                     }
+                    Console.ForegroundColor = ConsoleColor.White;
                     return 0;
                 case DiffType.Directory:
                     var dirDiff = GenerateDirectoryDiff(args[0], args[1]);
@@ -32,6 +33,7 @@ namespace QuickDiff
                         Console.ForegroundColor = change.Item1;
                         Console.WriteLine(change.Item2);
                     }
+                    Console.ForegroundColor = ConsoleColor.White;
                     return 0;
                 default:
                     PrintHelp();
