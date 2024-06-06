@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>QuickDiff</Title>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Description>A dotnet CLI tool for comparing files and directories.</Description>
     <PackageProjectUrl>https://github.com/JustinRidings/QuickDiff</PackageProjectUrl>
     <PackageTags>Diff;CLI;Compare;Comparison</PackageTags>
