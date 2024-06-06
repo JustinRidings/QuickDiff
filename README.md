@@ -29,6 +29,9 @@ QuickDiff "C:\Users\foo\Desktop\file1.txt" "C:\Users\foo\Desktop\file2.txt"
 Directory Diff Example:
 QuickDiff "C:\Users\foo\Desktop\Dir1" "C:\Users\foo\Desktop\Dir2"
 
+Directory Diff Example with File Version Diffing:
+QuickDiff "C:\Users\foo\Desktop\Dir1" "C:\Users\foo\Desktop\Dir2" --fileVersion
+
 Save output to a file:
 QuickDiff "C:\Users\foo\Desktop\file1.txt" "C:\Users\foo\Desktop\file2.txt" >outputFile.txt
 ```
