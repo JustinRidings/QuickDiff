@@ -1,79 +1,83 @@
 ﻿using System.Reflection;
+using System.CommandLine;
+using System.CommandLine.Invocation;
 
 namespace QuickDiff
 {
     internal class Program
     {
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
-            if (args.Length < 2 || args.Length > 2)
+            var baseArg = new Argument<string>("base")
             {
-                PrintHelp();
-                //https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
-                return 87;
-            }
-
-            var diffType = TryParseArguments(args);
-
-            switch (diffType)
+                Description = "The base file or directory to compare",
+                Arity = ArgumentArity.ExactlyOne
+            };
+            var compareArg = new Argument<string>("comparison")
             {
-                case DiffType.File:
-                    var ilDiff = GenerateInlineFileDiff(args[0], args[1]); ;
-                    foreach(var change in ilDiff)
-                    {
-                        Console.ForegroundColor = change.Item1;
-                        Console.WriteLine(change.Item2);
-                    }
-                    Console.ForegroundColor = ConsoleColor.White;
-                    return 0;
-                case DiffType.Directory:
-                    var dirDiff = GenerateDirectoryDiff(args[0], args[1]);
-                    foreach(var change in dirDiff)
-                    {
-                        Console.ForegroundColor = change.Item1;
-                        Console.WriteLine(change.Item2);
-                    }
-                    Console.ForegroundColor = ConsoleColor.White;
-                    return 0;
-                default:
-                    PrintHelp();
-                    return 3;
-            }
+                Description = "The base file or directory to compare",
+                Arity = ArgumentArity.ExactlyOne
+            };
+            var versionOption = new Option<bool>("--fileVersion")
+            {
+                Description = "Whether or not to include file version diffing for directories",
+            };
+            versionOption.AddAlias("--fv");
+
+            var rootCommand = new RootCommand();
+            rootCommand.AddArgument(baseArg);
+            rootCommand.AddArgument(compareArg);
+            rootCommand.AddOption(versionOption);
+
+            rootCommand.SetHandler((string baseArgValue, string compareArgValue, bool isVersionOption) =>
+            {
+                if (string.IsNullOrEmpty(baseArgValue) || string.IsNullOrEmpty(compareArgValue))
+                {
+                    Environment.Exit(87);
+                }
+
+                var diffType = GetDiffType(baseArgValue, compareArgValue);
+
+                switch (diffType)
+                {
+                    case DiffType.File:
+                        var ilDiff = GenerateInlineFileDiff(baseArgValue, compareArgValue); ;
+                        foreach (var change in ilDiff)
+                        {
+                            Console.ForegroundColor = change.Item1;
+                            Console.WriteLine(change.Item2);
+                        }
+                        ResetConsoleColor();
+                        break;
+                    case DiffType.Directory:
+                        var dirDiff = GenerateDirectoryDiff(baseArgValue, compareArgValue, isVersionOption);
+                        foreach (var change in dirDiff)
+                        {
+                            Console.ForegroundColor = change.Item1;
+                            Console.WriteLine(change.Item2);
+                        }
+                        ResetConsoleColor();
+                        break;
+                    default:
+                        break;
+                }
+            },
+            baseArg, compareArg, versionOption);
+
+            rootCommand.Invoke(args);
+
+            Environment.Exit(0);
         }
 
-        static void PrintHelp()
+        static void ResetConsoleColor()
         {
-            Console.WriteLine($"----------------------------");
-            Console.WriteLine($"QuickDiff {GetAppVersion()}");
-            Console.WriteLine($"----------------------------");
-            Console.WriteLine($"\n");
-            Console.WriteLine($"Syntax: QuickDiff.exe \"<Base File/Dir>\" \"<Compare File/Dir>\"");
-            Console.WriteLine($"\n");
-            Console.WriteLine($"File Diff Example:");
-            Console.WriteLine($"QuickDiff.exe \"C:\\Users\\foo\\Desktop\\file1.txt\" \"C:\\Users\\foo\\Desktop\\file2.txt\"");
-            Console.WriteLine($"\n");
-            Console.WriteLine($"Directory Diff Example:");
-            Console.WriteLine($"QuickDiff.exe \"C:\\Users\\foo\\Desktop\\Dir1\" \"C:\\Users\\foo\\Desktop\\Dir2\"");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
-        static string? GetAppVersion()
+        static DiffType GetDiffType(string item1, string item2)
         {
-            // Get the executing assembly (this program)
-            Assembly assembly = Assembly.GetExecutingAssembly();
-
-            // Get the assembly version
-            Version? version = assembly?.GetName()?.Version;
-
-            return $"v{version?.ToString()}";
-        }
-
-        static DiffType TryParseArguments(string[] args)
-        {
-            if (args != null && args.Length == 2 && !string.IsNullOrEmpty(args[0]) && !string.IsNullOrEmpty(args[1]))
+            if (!string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2))
             {
-                var item1 = args[0];
-                var item2 = args[1];
-
                 try
                 {
                     bool item1IsFile = File.Exists(item1) && !IsBinaryFile(Path.GetFullPath(item1));
@@ -99,9 +103,9 @@ namespace QuickDiff
             return DiffType.None;
         }
 
-        static List<Tuple<ConsoleColor,string>> GenerateInlineFileDiff(string original, string modified)
+        static List<Tuple<ConsoleColor, string>> GenerateInlineFileDiff(string original, string modified)
         {
-            List<Tuple<ConsoleColor,string>> result = new List<Tuple<ConsoleColor, string>>();
+            List<Tuple<ConsoleColor, string>> result = new List<Tuple<ConsoleColor, string>>();
             string[] originalLines = File.ReadAllLines(original);
             string[] modifiedLines = File.ReadAllLines(modified);
 
@@ -114,7 +118,7 @@ namespace QuickDiff
 
                 if (originalLine == modifiedLine)
                 {
-                    result.Add(new Tuple<ConsoleColor,string>(ConsoleColor.White, $"{i}: {originalLine}"));
+                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"{i}: {originalLine}"));
                 }
                 else
                 {
@@ -132,9 +136,9 @@ namespace QuickDiff
             return result;
         }
 
-        static List<Tuple<ConsoleColor, string>> GenerateDirectoryDiff(string baseDir, string compareDir)
+        static List<Tuple<ConsoleColor, string>> GenerateDirectoryDiff(string baseDir, string compareDir, bool showVersionDiff)
         {
-            List<Tuple<ConsoleColor,string>> result = new List<Tuple<ConsoleColor, string>>();
+            List<Tuple<ConsoleColor, string>> result = new List<Tuple<ConsoleColor, string>>();
 
             // Get the list of files and directories in baseDir
             string[] baseFiles = Directory.GetFiles(baseDir, "*", SearchOption.AllDirectories);
@@ -155,7 +159,7 @@ namespace QuickDiff
                 if (!compareDirectorySet.Contains(Path.Combine(compareDir, relativePath)))
                 {
                     // Directory exists in baseDir but not in compareDir
-                    result.Add(new Tuple<ConsoleColor,string>(ConsoleColor.Red, $"----    .\\{relativePath}"));
+                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"----    .\\{relativePath}"));
                 }
             }
 
@@ -182,24 +186,41 @@ namespace QuickDiff
                 }
                 else
                 {
+
                     DateTime baseFileDate = File.GetLastWriteTimeUtc(baseFile);
                     DateTime compareFileDate = File.GetLastWriteTimeUtc(compareFile);
 
                     if (baseFileDate < compareFileDate)
                     {
-                        // compareDir version is newer
-                        result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Green, $"ver+    .\\{relativePath}"));
+                        if (showVersionDiff == true)
+                        {
+                            // compareDir version is newer
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Green, $"ver+    .\\{relativePath}"));
+                        }
+                        else
+                        {
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{relativePath}"));
+                        }
                     }
                     else if (baseFileDate > compareFileDate)
                     {
-                        // compareDir version is older
-                        result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"ver-    .\\{relativePath}"));
+                        if (showVersionDiff == true)
+                        {
+                            // compareDir version is older
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"ver-    .\\{relativePath}"));
+                        }
+                        else
+                        {
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{relativePath}"));
+                        }
                     }
                     else
                     {
                         // File exists in both directories
                         result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{relativePath}"));
                     }
+
+
                 }
             }
 
