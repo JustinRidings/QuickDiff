@@ -141,91 +141,86 @@ namespace QuickDiff
             List<Tuple<ConsoleColor, string>> result = new List<Tuple<ConsoleColor, string>>();
 
             // Get the list of files and directories in baseDir
-            string[] baseFiles = Directory.GetFiles(baseDir, "*", SearchOption.AllDirectories);
+            string[] baseFiles = Directory.GetFiles(baseDir, "*.*", SearchOption.AllDirectories);
             string[] baseDirectories = Directory.GetDirectories(baseDir, "*", SearchOption.AllDirectories);
-            HashSet<string> baseFileSet = new HashSet<string>(baseFiles);
-            HashSet<string> baseDirectorySet = new HashSet<string>(baseDirectories);
+            HashSet<string> baseFileSet = new HashSet<string>(baseFiles.Select(f => f.Substring(baseDir.Length + 1)));
+            HashSet<string> baseDirectorySet = new HashSet<string>(baseDirectories.Select(d => d.Substring(baseDir.Length + 1)));
 
             // Get the list of files and directories in compareDir
-            string[] compareFiles = Directory.GetFiles(compareDir, "*", SearchOption.AllDirectories);
+            string[] compareFiles = Directory.GetFiles(compareDir, "*.*", SearchOption.AllDirectories);
             string[] compareDirectories = Directory.GetDirectories(compareDir, "*", SearchOption.AllDirectories);
-            HashSet<string> compareFileSet = new HashSet<string>(compareFiles);
-            HashSet<string> compareDirectorySet = new HashSet<string>(compareDirectories);
+            HashSet<string> compareFileSet = new HashSet<string>(compareFiles.Select(f => f.Substring(compareDir.Length + 1)));
+            HashSet<string> compareDirectorySet = new HashSet<string>(compareDirectories.Select(d => d.Substring(compareDir.Length + 1)));
 
             // Compare directories
             foreach (string baseDirectory in baseDirectorySet)
             {
-                string relativePath = baseDirectory.Substring(baseDir.Length).TrimStart('\\');
-                if (!compareDirectorySet.Contains(Path.Combine(compareDir, relativePath)))
+                if (!compareDirectorySet.Contains(baseDirectory))
                 {
                     // Directory exists in baseDir but not in compareDir
-                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"----    .\\{relativePath}"));
+                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"----    .\\{baseDirectory}"));
                 }
             }
 
             foreach (string compareDirectory in compareDirectorySet)
             {
-                string relativePath = compareDirectory.Substring(compareDir.Length).TrimStart('\\');
-                if (!baseDirectorySet.Contains(Path.Combine(baseDir, relativePath)))
+                if (!baseDirectorySet.Contains(compareDirectory))
                 {
                     // Directory exists in compareDir but not in baseDir
-                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Green, $"++++    .\\{relativePath}\\"));
+                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Green, $"++++    .\\{compareDirectory}\\"));
                 }
             }
 
             // Compare files
             foreach (string baseFile in baseFileSet)
             {
-                string relativePath = baseFile.Substring(baseDir.Length).TrimStart('\\');
-                string compareFile = Path.Combine(compareDir, relativePath);
-
-                if (!compareFileSet.Contains(compareFile))
+                if (!compareFileSet.Contains(baseFile))
                 {
                     // File exists in baseDir but not in compareDir
-                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"----    .\\{relativePath}"));
+                    result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"----    .\\{baseFile}"));
                 }
                 else
                 {
+                    string baseFilePath = Path.Combine(baseDir, baseFile);
+                    string compareFilePath = Path.Combine(compareDir, baseFile);
 
-                    DateTime baseFileDate = File.GetLastWriteTimeUtc(baseFile);
-                    DateTime compareFileDate = File.GetLastWriteTimeUtc(compareFile);
+                    DateTime baseFileDate = File.GetLastWriteTimeUtc(baseFilePath);
+                    DateTime compareFileDate = File.GetLastWriteTimeUtc(compareFilePath);
 
                     if (baseFileDate < compareFileDate)
                     {
-                        if (showVersionDiff == true)
+                        if (showVersionDiff)
                         {
                             // compareDir version is newer
-                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Green, $"ver+    .\\{relativePath}"));
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Green, $"ver+    .\\{baseFile}"));
                         }
                         else
                         {
-                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{relativePath}"));
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{baseFile}"));
                         }
                     }
                     else if (baseFileDate > compareFileDate)
                     {
-                        if (showVersionDiff == true)
+                        if (showVersionDiff)
                         {
                             // compareDir version is older
-                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"ver-    .\\{relativePath}"));
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.Red, $"ver-    .\\{baseFile}"));
                         }
                         else
                         {
-                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{relativePath}"));
+                            result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{baseFile}"));
                         }
                     }
                     else
                     {
                         // File exists in both directories
-                        result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{relativePath}"));
+                        result.Add(new Tuple<ConsoleColor, string>(ConsoleColor.White, $"        .\\{baseFile}"));
                     }
-
-
                 }
             }
 
             // Sort the result for better readability
-            result = result.OrderBy(r => r).ToList();
+            result = result.OrderBy(r => r.Item2).ToList();
 
             return result;
         }
